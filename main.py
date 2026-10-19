@@ -1,16 +1,27 @@
-from fastapi import FastAPI  # type: ignore[import-not-found]
-from DataBase.db import base,engine
-from error import exception,exceptionHandle
-from route import route
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-base.metadata.create_all(engine)
-app=FastAPI(title="task Manager")
+
+from DataBase.db import base, engine
+from error import exception, exceptionHandle
+from route import route
 
 
-base.metadata.create_all(engine)
+# Create database tables
+base.metadata.create_all(bind=engine)
+
+# Initialize FastAPI application
+app = FastAPI(title="Task Manager")
+
+# Register API routes
 app.include_router(route.route)
-app.add_exception_handler(exception.DatabaseException, exceptionHandle.db_handler)
 
+# Register custom exception handler
+app.add_exception_handler(
+    exception.DatabaseException,
+    exceptionHandle.db_handler,
+)
+
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
